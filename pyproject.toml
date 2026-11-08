@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py-acevo-recorder"
+version = "0.1.0"
+description = "Record Assetto Corsa Evo live telemetry on Windows."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["py-acevo"]
+
+[project.scripts]
+py-acevo-recorder = "main:main"
+
+[tool.setuptools]
+py-modules = ["main", "session"]
+
+[dependency-groups]
+build = ["pyinstaller"]
