@@ -36,7 +36,7 @@ def capture_driving(
             snapshot = memory.read_snapshot()
 
             if snapshot.static.session == ACEVO_SESSION_TYPE.AC_UNKNOWN:
-                logger.info("Session '%s' has ended.", static.session_name)
+                logger.info("Session '%s' has ended.", snapshot.static.session_name)
                 return
 
             if snapshot.graphics.status != ACEVO_STATUS.AC_LIVE:
@@ -49,21 +49,13 @@ def capture_driving(
             session.append(serialize_page(snapshot.graphics))
 
 
-def discover_session(memory: ACEvoSharedMemory, *, retry_discovery_in_sec: float):
-    logger.info("Discovering sessions...")
-    while True:
-        static = memory.read_static()
-
-        if static.session == ACEVO_SESSION_TYPE.AC_UNKNOWN:
-            sleep(retry_discovery_in_sec)
-            continue
-
-        logger.info("Found '%s' session.", static.session_name)
-        yield static
-
-
 def connect_and_capture() -> None:
     with ACEvoSharedMemory() as memory:
         logger.info("Connected to Assetto Corsa Evo shared memory.")
-        for static in discover_session(memory, retry_discovery_in_sec=10):
-            capture_driving(memory, static, retry_capture_in_sec=1 / 30)
+        static = memory.read_static()
+
+        if static.session == ACEVO_SESSION_TYPE.AC_UNKNOWN:
+            return
+
+        logger.info("Found '%s' session.", static.session_name)
+        capture_driving(memory, static, retry_capture_in_sec=1 / 30)

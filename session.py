@@ -20,7 +20,7 @@ class Session:
         timestamp = format(datetime.now(tz=timezone.utc), "%Y%m%d%H%M%S%f")
         output_path = output_folder / (f"{timestamp}.jsonl")
         self._output = output_path.open("w", encoding="utf-8")
-        logger.info("Start recording to %s", self._output.name)
+        logger.info("Start recording to '%s'", self._output.name)
 
     def __enter__(self) -> Session:
         return self
@@ -39,7 +39,7 @@ class Session:
         ):
             shutil.copyfileobj(source, compressed)
         Path(self._output.name).unlink()
-        logger.info("Compressed recording to %s", compressed_path)
+        logger.info("Compressed recording to '%s'", compressed_path)
 
     def append(self, page: dict[str, object]) -> None:
         self._output.write(json.dumps(page, separators=(",", ":")) + "\n")

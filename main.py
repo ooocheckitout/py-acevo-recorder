@@ -18,6 +18,8 @@ def monitor_games(*, retry_connect_in_sec: int) -> None:
                 game.connect_and_capture()
             except FileNotFoundError:
                 continue
+            except Exception:
+                logger.exception("'%s' capture failed.", game.__name__)
 
         sleep(retry_connect_in_sec)
 

@@ -4,7 +4,6 @@ from time import sleep
 
 from ac import ACSharedMemory
 from ac.models.enums import AC_SESSION_TYPE, AC_STATUS
-from ac.models.graphics import GraphicsPage
 
 from session import Session
 
@@ -23,11 +22,10 @@ def serialize_page(value: object) -> object:
     return value
 
 
-def capture_driving(
-    memory: ACSharedMemory, static: StaticPage, *, retry_capture_in_sec: float
-) -> None:
+def capture_driving(memory: ACSharedMemory, *, retry_capture_in_sec: float) -> None:
     logger.info("Capturing the driving events...")
     with Session() as session:
+        static = memory.read_static()
         session.append(serialize_page(static))
 
         while True:
@@ -36,7 +34,8 @@ def capture_driving(
 
             if snapshot.graphics.status == AC_STATUS.AC_OFF:
                 logger.info(
-                    "Session '%s' has ended.", AC_SESSION_TYPE(graphics.session).name
+                    "Session '%s' has ended.",
+                    AC_SESSION_TYPE(snapshot.graphics.session).name,
                 )
                 return
 
@@ -50,21 +49,14 @@ def capture_driving(
             session.append(serialize_page(snapshot.graphics))
 
 
-def discover_session(memory: ACSharedMemory, *, retry_discovery_in_sec: float):
-    logger.info("Discovering sessions...")
-    while True:
-        graphics = memory.read_graphics()
-
-        if graphics.status != AC_STATUS.AC_LIVE:
-            sleep(retry_discovery_in_sec)
-            continue
-
-        logger.info("Found '%s' session.", AC_SESSION_TYPE(graphics.session).name)
-        yield memory.read_static()
-
-
 def connect_and_capture() -> None:
     with ACSharedMemory() as memory:
         logger.info("Connected to Assetto Corsa shared memory.")
-        for static in discover_session(memory, retry_discovery_in_sec=10):
-            capture_driving(memory, static, retry_capture_in_sec=1 / 30)
+        graphics = memory.read_graphics()
+
+        if graphics.status != AC_STATUS.AC_LIVE:
+            return
+
+        logger.info("Found '%s' session.", AC_SESSION_TYPE(graphics.session).name)
+
+        capture_driving(memory, retry_capture_in_sec=1 / 30)
