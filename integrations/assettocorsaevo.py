@@ -1,6 +1,5 @@
 import ctypes
 import logging
-from pathlib import Path
 from time import sleep
 
 from acevo import ACEvoSharedMemory
