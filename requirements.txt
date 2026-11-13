@@ -1,2 +1,3 @@
-py-acevo
+py-assettocorsa
+py-assettocorsa-evo
 pyinstaller

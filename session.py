@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 class Session:
     def __init__(self) -> None:
-        output_folder = Path(r"C:\Users\feelsgood\Documents\py-acevo-recorder\Recordings")
+        output_folder = Path(
+            r"C:\Users\feelsgood\Documents\py-assettocorsa-recorder\Recordings"
+        )
         output_folder.mkdir(parents=True, exist_ok=True)
         timestamp = format(datetime.now(tz=timezone.utc), "%Y%m%d%H%M%S%f")
         output_path = output_folder / (f"{timestamp}.jsonl")
@@ -30,12 +32,14 @@ class Session:
         traceback: TracebackType | None,
     ) -> None:
         self._output.close()
+        compressed_path = Path(self._output.name).with_suffix(".jsonl.gz")
         with (
             open(self._output.name, "rb") as source,
-            gzip.open(self._output.name + ".gz", "wb") as compressed,
+            gzip.open(compressed_path, "wb") as compressed,
         ):
             shutil.copyfileobj(source, compressed)
         Path(self._output.name).unlink()
+        logger.info("Compressed recording to %s", compressed_path)
 
     def append(self, page: dict[str, object]) -> None:
         self._output.write(json.dumps(page, separators=(",", ":")) + "\n")
