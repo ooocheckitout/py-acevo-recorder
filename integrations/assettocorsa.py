@@ -27,7 +27,7 @@ def capture_driving(
     memory: ACSharedMemory, graphics: GraphicsPage, *, retry_capture_in_sec: float
 ) -> None:
     session_type = AC_SESSION_TYPE(graphics.session).name
-    logger.info("Capturing Assetto Corsa '%s' session.", session_type)
+    logger.info("Capturing '%s' session.", session_type)
 
     with Session() as session:
         static = memory.read_static()
@@ -61,4 +61,8 @@ def connect_and_capture() -> None:
         if graphics.status != AC_STATUS.AC_LIVE:
             return
 
+        logger.info("Connected to Assetto Corsa.")
+
         capture_driving(memory, graphics, retry_capture_in_sec=1 / 30)
+
+    logger.info("Disconnected from Assetto Corsa.")

@@ -26,7 +26,7 @@ def serialize_page(value: object) -> object:
 def capture_driving(
     memory: ACEvoSharedMemory, static: StaticPage, *, retry_capture_in_sec: float
 ) -> None:
-    logger.info("Capturing Assetto Corsa Evo '%s' session.", static.session_name)
+    logger.info("Capturing '%s' session.", static.session_name)
 
     with Session() as session:
         session.append(serialize_page(static))
@@ -56,4 +56,8 @@ def connect_and_capture() -> None:
         if static.session == ACEVO_SESSION_TYPE.AC_UNKNOWN:
             return
 
-        capture_driving(memory, static, retry_capture_in_sec=1 / 30)
+        logger.info("Connected to Assetto Corsa.")
+
+        capture_driving(memory, graphics, retry_capture_in_sec=1 / 30)
+
+    logger.info("Disconnected from Assetto Corsa.")
